@@ -4,6 +4,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/prag-sri/go-gin-api-medium/pkg/authors"
 	"github.com/prag-sri/go-gin-api-medium/pkg/books"
 	"github.com/prag-sri/go-gin-api-medium/pkg/common/db"
 	"github.com/spf13/viper"
@@ -51,6 +52,7 @@ func main() {
 
 	*/
 
+	authors.RegisterRoutes(r, h)
 	books.RegisterRoutes(r, h)
 
 	r.Run(port)

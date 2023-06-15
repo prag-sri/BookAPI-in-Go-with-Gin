@@ -9,7 +9,7 @@ import (
 
 type UpdateBookRequestBody struct {
 	Title       string `json:"title"`
-	Author      string `json:"author"`
+	AuthorId    int    `json:"authorId"`
 	Description string `json:"description"`
 
 	//This code defines a new struct type called "UpdateBookRequestBody".
@@ -31,8 +31,6 @@ func (h handler) UpdateBook(c *gin.Context) {
 	if err := c.BindJSON(&body); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
-
-		//This line binds the JSON data from the request body to the "body" variable. It uses the BindJSON method of the gin.Context object. If there's an error in parsing the JSON or binding it to the struct, an error response with a status code of http.StatusBadRequest is returned.
 	}
 
 	var book models.Book
@@ -42,13 +40,20 @@ func (h handler) UpdateBook(c *gin.Context) {
 	if result := h.DB.First(&book, id); result.Error != nil {
 		c.AbortWithError(http.StatusNotFound, result.Error)
 		return
-
 		//This line uses the "First" method of the "DB" field in the "handler" struct to retrieve the first book record from the database that matches the given "id". The retrieved book record is stored in the "book" variable. If there's an error during the retrieval process, an error response with a status code of http.StatusNotFound is returned.
 	}
 
 	book.Title = body.Title
-	book.Author = body.Author
 	book.Description = body.Description
+	book.AuthorId = body.AuthorId
+
+	var author models.Author
+	if result := h.DB.First(&author, book.AuthorId); result.Error != nil {
+		c.AbortWithError(http.StatusNotFound, result.Error)
+		return
+	}
+
+	book.Author = author
 
 	h.DB.Save(&book)
 

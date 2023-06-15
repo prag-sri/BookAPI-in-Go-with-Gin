@@ -32,6 +32,7 @@ func Init(url string) *gorm.DB {
 
 	//If there is an error while opening the database connection, it is logged using log.Fatalln(err). This will print the error message and exit the program.
 
+	db.AutoMigrate(&models.Author{})
 	db.AutoMigrate(&models.Book{})
 
 	// This AutoMigrate function will create the books table for us as soon as we run this application.

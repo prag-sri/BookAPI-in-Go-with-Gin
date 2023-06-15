@@ -21,12 +21,14 @@ func (h handler) GetBook(c *gin.Context) {
 
 	//This line declares a variable named "book" of type "models.Book".
 
-	if result := h.DB.First(&book, id); result.Error != nil {
+	if result := h.DB.Preload("Author").First(&book, id); result.Error != nil {
 		c.AbortWithError(http.StatusNotFound, result.Error)
 		return
 	}
 
-	//This line uses the "First" method of the "DB" field in the "handler" struct to retrieve the first book record from the database that matches the given "id". The retrieved book record is stored in the "book" variable. If there's an error during the retrieval process, an error response with a status code of http.StatusNotFound is returned.
+	//Preload("Author"): This is a method provided by GORM that allows you to preload associations or relationships while fetching records from the database. In this case, Preload("Author") specifies that you want to preload the Author association for the book object. It ensures that when the book is retrieved from the database, the associated Author is also fetched.
+
+	//It fetches the record with the given bookID from the books table and assigns it to the book variable.
 
 	c.JSON(http.StatusOK, &book)
 

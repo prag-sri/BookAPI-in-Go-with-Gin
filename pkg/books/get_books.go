@@ -15,8 +15,13 @@ func (h handler) GetBooks(c *gin.Context) {
 
 	//This line declares a variable named "books" as a slice of "models.Book".
 
-	if result := h.DB.Find(&books); result.Error != nil {
-		c.AbortWithError(http.StatusNotFound, result.Error)
+	// if result := h.DB.Find(&books); result.Error != nil {
+	// 	c.AbortWithError(http.StatusNotFound, result.Error)
+	// 	return
+	// }
+
+	if result := h.DB.Preload("Author").Find(&books); result.Error != nil {
+		c.AbortWithError(http.StatusInternalServerError, result.Error)
 		return
 	}
 

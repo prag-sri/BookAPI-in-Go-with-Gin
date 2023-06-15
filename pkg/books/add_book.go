@@ -11,7 +11,7 @@ import (
 
 type AddBookRequestBody struct {
 	Title       string `json:"title"`
-	Author      string `json:"author"`
+	AuthorId    int    `json:"authorId"`
 	Description string `json:"description"`
 
 	//It represents the structure of the request body when adding a book.
@@ -38,8 +38,19 @@ func (h handler) AddBook(c *gin.Context) {
 	//This line declares a variable named "book" of type "models.Book".
 
 	book.Title = body.Title
-	book.Author = body.Author
+	// book.Author = body.Author
+	book.AuthorId = body.AuthorId
 	book.Description = body.Description
+
+	//Assigning author details to book
+	var author models.Author
+
+	if result := h.DB.First(&author, book.AuthorId); result.Error != nil {
+		c.AbortWithError(http.StatusNotFound, result.Error)
+		return
+	}
+
+	book.Author = author
 
 	if result := h.DB.Create(&book); result.Error != nil {
 		c.AbortWithError(http.StatusNotFound, result.Error)
