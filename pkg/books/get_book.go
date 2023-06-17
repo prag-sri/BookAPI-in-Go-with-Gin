@@ -6,31 +6,39 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/prag-sri/go-gin-api-medium/pkg/common/models"
 )
+
+type GetBookResponseBody struct {
+	Title       string `json:"title"`
+	AuthorId    int    `json:"authorId"`
+	AuthorName  string
+	Description string `json:"description"`
+}
 
 func (h handler) GetBook(c *gin.Context) {
 
-	//This code defines a method named "GetBook" associated with the "handler" struct. The method takes a pointer to a gin.Context object, which represents the HTTP request context.
-
 	id := c.Param("id")
+	book := GetBookResponseBody{}
 
-	//This line retrieves the value of the "id" parameter from the request URL. It uses the Param method of the gin.Context object to extract the value.
-
-	var book models.Book
-
-	//This line declares a variable named "book" of type "models.Book".
-
-	if result := h.DB.Preload("Author").First(&book, id); result.Error != nil {
+	if result := h.DB.Table("books").
+		Select("books.title, books.author_id, authors.name AS author_name, books.description").
+		Joins("JOIN authors on books.author_id= authors.id").
+		Where("books.id =?", id).
+		First(&book); result.Error != nil {
 		c.AbortWithError(http.StatusNotFound, result.Error)
 		return
+
+		// if result := h.DB.Table("books"): This line selects the "books" table from the database using h.DB.Table("books")
+
+		//Select("books.title, books.author_id, authors.name AS author_name, books.description"): This line specifies the columns to be selected from the "books" table and the "authors" table.
+
+		//.Joins("JOIN authors on books.author_id= authors.id"): This line performs a join operation between the "books" table and the "authors" table based on the author_id column in the "books" table and the id column in the "authors" table.
+
+		//.Where("books.id =?", id): This line adds a condition to filter the rows in the "books" table where the id column matches the provided id variable.
+
+		//.First(&book): This line executes the query and retrieves the first result from the database based on the conditions specified. The result is stored in the book variable.
+
 	}
 
-	//Preload("Author"): This is a method provided by GORM that allows you to preload associations or relationships while fetching records from the database. In this case, Preload("Author") specifies that you want to preload the Author association for the book object. It ensures that when the book is retrieved from the database, the associated Author is also fetched.
-
-	//It fetches the record with the given bookID from the books table and assigns it to the book variable.
-
 	c.JSON(http.StatusOK, &book)
-
-	//This line sends a JSON response to the client with the status code http.StatusOK (200) and the "book" variable as the response body.
 }
