@@ -1,10 +1,9 @@
 package models
 
-import "gorm.io/gorm"
-
 type Book struct {
-	gorm.Model  // gorm.Model will add properties such as ID, CreatedAt, UpdatedAt and DeletedAt for us.
-	Title       string
-	AuthorId    int
+	ID          uint   `gorm:"primaryKey"`
+	Title       string `gorm:"not null"`
 	Description string
+	AuthorID    uint   // Foreign key for the associated author
+	Author      Author `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"` // Association with Author model
 }

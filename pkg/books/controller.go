@@ -24,7 +24,7 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 	routes := r.Group("/books")
 
 	//This line creates a new router group using the Group method of the gin.Engine object r. The group is assigned to the variable routes. The group path is set to "/books", so all routes registered within this group will have "/books" as the base URL.
-	
+
 	routes.POST("/", h.AddBook)
 	routes.GET("/", h.GetBooks)
 	routes.GET("/:id", h.GetBook)

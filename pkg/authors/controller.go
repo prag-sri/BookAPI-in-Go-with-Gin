@@ -17,4 +17,6 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 	routes := r.Group("/authors")
 	routes.POST("/", h.AddAuthor)
 	routes.GET("/:id", h.GetBooksOfAuthor)
+	routes.GET("/", h.GetAuthors)
+	routes.DELETE("/:id", h.DeleteAuthor)
 }

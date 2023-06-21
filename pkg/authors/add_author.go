@@ -9,30 +9,45 @@ import (
 
 type AddAuthorRequestBody struct {
 	Name    string `json:"name"`
-	EmailId string `json:"emailId"`
-	Age     int    `json:"age"`
+	EmailID string `json:"emailId"`
+	Age     uint   `json:"age"`
+	Country string `json:"country"`
+}
+
+type AddAuthorResponse struct {
+	ID      uint   `json:"id"`
+	Name    string `json:"name"`
+	EmailID string `json:"emailId"`
+	Age     uint   `json:"age"`
 	Country string `json:"country"`
 }
 
 func (h handler) AddAuthor(c *gin.Context) {
 	body := AddAuthorRequestBody{}
 
-	if err := c.BindJSON(&body); err != nil {
+	if err := c.ShouldBindJSON(&body); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	var author models.Author
-
-	author.Name = body.Name
-	author.EmailId = body.EmailId
-	author.Age = body.Age
-	author.Country = body.Country
-
-	if result := h.DB.Create(&author); result.Error != nil {
-		c.AbortWithError(http.StatusNotFound, result.Error)
-		return
+	author := models.Author{
+		Name:    body.Name,
+		EmailID: body.EmailID,
+		Age:     body.Age,
+		Country: body.Country,
 	}
 
-	c.JSON(http.StatusCreated, &author)
+	if err := h.DB.Create(&author).Error; err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	response := AddAuthorResponse{
+		ID:      author.ID,
+		Name:    author.Name,
+		EmailID: author.EmailID,
+		Age:     author.Age,
+		Country: author.Country,
+	}
+
+	c.JSON(http.StatusCreated, response)
 }
